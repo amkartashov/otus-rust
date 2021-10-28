@@ -1,6 +1,6 @@
 # otus-rust
 
-https://otus.ru/learning/134780/
+https://otus.ru/lessons/rust-developer
 
 ## Lesson 1
 
@@ -10,6 +10,12 @@ https://otus.ru/learning/134780/
 * small guessing game
 * 1st homework
 
-+ clear introduction
-- zoom chat is limited
+<ins>**+'s**</ins>:
 
+* clear introduction
+
+<ins>**-'s**</ins>:
+
+* zoom chat is limited
+
+Not so useful for me because I'm not a comlete novice in Rust but overall imression is good.
