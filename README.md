@@ -19,3 +19,10 @@ https://otus.ru/lessons/rust-developer
 * zoom chat is limited
 
 Not so useful for me because I'm not a comlete novice in Rust but overall imression is good.
+
+## Lesson 2
+
+* rust playground
+* Build setup
+* Development environment
+* rustc, compile pipeline
