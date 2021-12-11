@@ -1,0 +1,7 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "hw1/Cargo.toml",
+        "hw2/smarthome/Cargo.toml",
+        "hw3/smarthome/Cargo.toml",
+    ],
+}
