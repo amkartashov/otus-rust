@@ -3,5 +3,6 @@
         "hw1/Cargo.toml",
         "hw2/smarthome/Cargo.toml",
         "hw3/smarthome/Cargo.toml",
+        "hw4/smarthome/Cargo.toml",
     ],
 }
