@@ -1,4 +1,4 @@
-use smarthome::{Device, Home, Room, SmartSocket, Thermometr};
+use crate::{Device, Home, Room, SmartSocket, Thermometr};
 
 #[test]
 // test for Дом имеет название и содержит несколько помещений
@@ -63,7 +63,8 @@ fn home_room_non_unique_name_isnt_allowed() {
     let mut home = Home::new("my home".to_string());
 
     home.add_room("room1".to_string(), Room::default()).ok(); // ok() to ignore result
-                                                              // next add_room call with the same name should return err
+
+    // next add_room call with the same name should return err
     assert!(home.add_room("room1".to_string(), Room::default()).is_err());
 }
 
@@ -73,11 +74,20 @@ fn home_room_non_unique_name_isnt_allowed() {
 fn room_device_non_unique_name_isnt_allowed() {
     let mut room = Room::default();
 
-    room.add_device("device1".to_string(), "".to_string(), Thermometr::new())
-        .ok(); // ok() to ignore result
-               // next add_device call with the same name should return err
+    room.add_device(
+        "device1".to_string(),
+        "".to_string(),
+        Thermometr::new().into(),
+    )
+    .ok(); // ok() to ignore result
+
+    // next add_device call with the same name should return err
     assert!(room
-        .add_device("device1".to_string(), "".to_string(), SmartSocket::new())
+        .add_device(
+            "device1".to_string(),
+            "".to_string(),
+            SmartSocket::new().into()
+        )
         .is_err());
 }
 
@@ -87,11 +97,20 @@ fn room_device_non_unique_name_isnt_allowed() {
 fn room_device_non_unique_type_isnt_allowed() {
     let mut room = Room::default();
 
-    room.add_device("device1".to_string(), "".to_string(), Thermometr::new())
-        .ok(); // ok() to ignore result
-               // next add_device call with the same type should return err
+    room.add_device(
+        "device1".to_string(),
+        "".to_string(),
+        Thermometr::new().into(),
+    )
+    .ok(); // ok() to ignore result
+
+    // next add_device call with the same type should return err
     assert!(room
-        .add_device("device2".to_string(), "".to_string(), Thermometr::new())
+        .add_device(
+            "device2".to_string(),
+            "".to_string(),
+            Thermometr::new().into()
+        )
         .is_err());
 }
 
@@ -102,8 +121,16 @@ fn room_has_devices() -> Result<(), String> {
     let mut room = Room::default();
 
     // test we can add devices
-    room.add_device("thermo".to_string(), "".to_string(), Thermometr::new())?;
-    room.add_device("socket".to_string(), "".to_string(), SmartSocket::new())?;
+    room.add_device(
+        "thermo".to_string(),
+        "".to_string(),
+        Thermometr::new().into(),
+    )?;
+    room.add_device(
+        "socket".to_string(),
+        "".to_string(),
+        SmartSocket::new().into(),
+    )?;
 
     // test that we have devices we added
     let mut device_names = room.devices();
@@ -142,7 +169,7 @@ fn room_has_devices() -> Result<(), String> {
 //test for Типы устройств: термометр, умная розетка.
 //here we test we can create device with type thermometr
 fn create_thermometr() -> Result<(), String> {
-    match Thermometr::new() {
+    match Thermometr::new().into() {
         Device::Thermometr(_) => Ok(()),
         device => Err(format!("Expected thermometr, got {:?}", device)),
     }
@@ -152,7 +179,7 @@ fn create_thermometr() -> Result<(), String> {
 //test for Типы устройств: термометр, умная розетка.
 //here we test we can create device with type smartsocket
 fn create_smartsocket() -> Result<(), String> {
-    match SmartSocket::new() {
+    match SmartSocket::new().into() {
         Device::SmartSocket(_) => Ok(()),
         device => Err(format!("Expected smartsocket, got {:?}", device)),
     }
@@ -162,7 +189,7 @@ fn create_smartsocket() -> Result<(), String> {
 // test for Термометр позволяет узнать температуру
 // here we just test that functions do not panic, cause we don't have requriements
 fn thermometr_functions() {
-    let d = Thermometr::new();
+    let d: Device = Thermometr::new().into();
 
     d.state(); // shouldn't panic
 
@@ -177,7 +204,7 @@ fn thermometr_functions() {
 // test for Умная розетка позволяет включать и выключать себя. Предоставляет информацию о текущем состоянии и потребляемой мощности.
 // here we just test that functions do not panic, cause we don't have requriements
 fn smartsocket_functions() {
-    let d = Thermometr::new();
+    let d: Device = Thermometr::new().into();
 
     d.state(); // shouldn't panic
 
@@ -202,12 +229,20 @@ fn home_state_functions() {
 
         home.room(rn)
             .unwrap()
-            .add_device("thermo".to_string(), "".to_string(), Thermometr::new())
+            .add_device(
+                "thermo".to_string(),
+                "".to_string(),
+                Thermometr::new().into(),
+            )
             .ok();
 
         home.room(rn)
             .unwrap()
-            .add_device("socket".to_string(), "".to_string(), SmartSocket::new())
+            .add_device(
+                "socket".to_string(),
+                "".to_string(),
+                SmartSocket::new().into(),
+            )
             .ok();
     }
 
