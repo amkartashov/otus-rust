@@ -29,8 +29,8 @@ impl Home {
         todo!()
     }
 
-    /// Returns a mutable reference to a room
-    pub fn room(&mut self, _name: &str) -> Result<&mut Room, String> {
+    /// Returns a mutable reference to a room if there is such room
+    pub fn room(&mut self, _name: &str) -> Option<&mut Room> {
         todo!()
     }
 

@@ -29,9 +29,9 @@ fn home_has_rooms() -> Result<(), String> {
     }?;
 
     // test we can get rooms we added
-    home.room("room1")?;
-    home.room("room2")?;
-    home.room("room3")?;
+    home.room("room1").ok_or(format!("no room1"))?;
+    home.room("room2").ok_or(format!("no room2"))?;
+    home.room("room3").ok_or(format!("no room3"))?;
 
     // test we can delete room
     home.delete_room("room2")?;
@@ -45,11 +45,11 @@ fn home_has_rooms() -> Result<(), String> {
     }?;
 
     // test we can get rooms we didn't delete
-    home.room("room1")?;
-    home.room("room3")?;
+    home.room("room1").ok_or(format!("no room1"))?;
+    home.room("room3").ok_or(format!("no room3"))?;
 
     // test we can't get room we deleted
-    if home.room("room2").is_ok() {
+    if home.room("room2").is_some() {
         return Err("Expected home.room(\"room2\") to return Err".to_string());
     };
 
@@ -141,8 +141,8 @@ fn room_has_devices() -> Result<(), String> {
     }?;
 
     // test we can get devices we added
-    room.device("thermo")?;
-    room.device("socket")?;
+    room.device("thermo").ok_or(format!("no thermo"))?;
+    room.device("socket").ok_or(format!("no socket"))?;
 
     // test we can delete device
     room.delete_device("thermo")?;
@@ -155,10 +155,10 @@ fn room_has_devices() -> Result<(), String> {
     }?;
 
     // test we can get device we didn't delete
-    room.device("socket")?;
+    room.device("socket").ok_or(format!("no socket"))?;
 
     // test we can't get device we deleted
-    if room.device("thermo").is_ok() {
+    if room.device("thermo").is_some() {
         return Err("Expected room.device(\"thermo\") to return Err".to_string());
     };
 

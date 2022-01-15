@@ -21,7 +21,7 @@ impl Room {
     }
 
     /// Returns a reference to a device
-    pub fn device(&mut self, _name: &str) -> Result<&mut Device, String> {
+    pub fn device(&mut self, _name: &str) -> Option<&mut Device> {
         todo!()
     }
 
