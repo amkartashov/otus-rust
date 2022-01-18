@@ -11,8 +11,11 @@ pub enum Device {
     SmartSocket(SmartSocket),
 }
 
+#[derive(Debug, Clone)]
+pub struct DeviceError {}
+
 impl Device {
-    pub fn state(&self) -> String {
+    pub fn state(&self) -> Result<String, DeviceError> {
         todo!()
     }
 }

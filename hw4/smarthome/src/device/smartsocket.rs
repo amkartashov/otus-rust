@@ -6,11 +6,11 @@ impl SmartSocket {
         todo!()
     }
 
-    pub fn switch(&mut self, _on: bool) {
+    pub fn switch(&mut self, _on: bool) -> Result<(), super::DeviceError> {
         todo!()
     }
 
-    pub fn power(&self) -> u32 {
+    pub fn power(&self) -> Result<u32, super::DeviceError> {
         todo!()
     }
 }

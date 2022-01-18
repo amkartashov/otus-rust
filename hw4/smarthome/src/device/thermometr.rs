@@ -6,7 +6,7 @@ impl Thermometr {
         todo!()
     }
 
-    pub fn temperature(&self) -> i32 {
+    pub fn temperature(&self) -> Result<i32, super::DeviceError> {
         todo!()
     }
 }
