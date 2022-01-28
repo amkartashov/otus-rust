@@ -1,7 +1,9 @@
 use crate::device::Device;
+use crate::Result;
 
 /// Room with uniquely named devices
 #[derive(Default, Debug)]
+
 pub struct Room {}
 
 impl Room {
@@ -11,12 +13,12 @@ impl Room {
     }
 
     /// Adds device
-    pub fn add_device(&mut self, _name: String, _descr: String, _d: Device) -> Result<(), String> {
+    pub fn add_device(&mut self, _name: String, _descr: String, _d: Device) -> Result<()> {
         todo!()
     }
 
     /// Deletes device
-    pub fn delete_device(&mut self, _name: &str) -> Result<(), String> {
+    pub fn delete_device(&mut self, _name: &str) -> Result<()> {
         todo!()
     }
 

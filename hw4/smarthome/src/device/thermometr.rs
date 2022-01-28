@@ -1,3 +1,5 @@
+use crate::Result;
+
 #[derive(Default, Debug)]
 pub struct Thermometr {}
 
@@ -6,7 +8,7 @@ impl Thermometr {
         todo!()
     }
 
-    pub fn temperature(&self) -> Result<i32, super::DeviceError> {
+    pub fn temperature(&self) -> Result<i32> {
         todo!()
     }
 }

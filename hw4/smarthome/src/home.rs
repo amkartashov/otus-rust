@@ -1,4 +1,5 @@
 use crate::room::Room;
+use crate::Result;
 
 /// Home has a name and uniquely named rooms
 #[derive(Debug)]
@@ -19,13 +20,13 @@ impl Home {
 
     /// Adds room
     /// Can return error in case of failure, f.e. if room name is not unique
-    pub fn add_room(&mut self, _name: String, _r: Room) -> Result<(), String> {
+    pub fn add_room(&mut self, _name: String, _r: Room) -> Result<()> {
         todo!()
     }
 
     /// Deletes room
     /// Can return error in case of failure, f.e. if there is no such room
-    pub fn delete_room(&mut self, _name: &str) -> Result<(), String> {
+    pub fn delete_room(&mut self, _name: &str) -> Result<()> {
         todo!()
     }
 

@@ -1,4 +1,4 @@
-use crate::{Device, Home, Room, SmartSocket, Thermometr};
+use crate::{Device, Home, Result, Room, SmartSocket, Thermometr};
 
 #[test]
 // test for Дом имеет название и содержит несколько помещений
@@ -12,7 +12,7 @@ fn home_has_name() {
 #[test]
 // test for Библитотека позволяет запросить список помещений, добавлять и удалять помещения в доме.
 // here we test that home has as many rooms as we expect after adding and removing it
-fn home_has_rooms() -> Result<(), String> {
+fn home_has_rooms() -> Result<()> {
     let mut home = Home::new("my home".to_string());
 
     // test we can add rooms
@@ -50,7 +50,9 @@ fn home_has_rooms() -> Result<(), String> {
 
     // test we can't get room we deleted
     if home.room("room2").is_some() {
-        return Err("Expected home.room(\"room2\") to return Err".to_string());
+        return Err("Expected home.room(\"room2\") to return Err"
+            .to_string()
+            .into());
     };
 
     Ok(())
@@ -117,7 +119,7 @@ fn room_device_non_unique_type_isnt_allowed() {
 #[test]
 // test for Библтотека позволяет добавлять, получать и удалять любое устройство в доме. Получать список устройств в помещении.
 // here we test we have as expected number of devices in a room
-fn room_has_devices() -> Result<(), String> {
+fn room_has_devices() -> Result<()> {
     let mut room = Room::default();
 
     // test we can add devices
@@ -159,7 +161,9 @@ fn room_has_devices() -> Result<(), String> {
 
     // test we can't get device we deleted
     if room.device("thermo").is_some() {
-        return Err("Expected room.device(\"thermo\") to return Err".to_string());
+        return Err("Expected room.device(\"thermo\") to return Err"
+            .to_string()
+            .into());
     };
 
     Ok(())
@@ -168,20 +172,20 @@ fn room_has_devices() -> Result<(), String> {
 #[test]
 //test for Типы устройств: термометр, умная розетка.
 //here we test we can create device with type thermometr
-fn create_thermometr() -> Result<(), String> {
+fn create_thermometr() -> Result<()> {
     match Thermometr::new().into() {
         Device::Thermometr(_) => Ok(()),
-        device => Err(format!("Expected thermometr, got {:?}", device)),
+        device => Err(format!("Expected thermometr, got {:?}", device).into()),
     }
 }
 
 #[test]
 //test for Типы устройств: термометр, умная розетка.
 //here we test we can create device with type smartsocket
-fn create_smartsocket() -> Result<(), String> {
+fn create_smartsocket() -> Result<()> {
     match SmartSocket::new().into() {
         Device::SmartSocket(_) => Ok(()),
-        device => Err(format!("Expected smartsocket, got {:?}", device)),
+        device => Err(format!("Expected smartsocket, got {:?}", device).into()),
     }
 }
 

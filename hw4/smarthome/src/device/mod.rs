@@ -1,6 +1,7 @@
 mod smartsocket;
 mod thermometr;
 
+use crate::Result;
 pub use smartsocket::SmartSocket;
 pub use thermometr::Thermometr;
 
@@ -11,11 +12,8 @@ pub enum Device {
     SmartSocket(SmartSocket),
 }
 
-#[derive(Debug, Clone)]
-pub struct DeviceError {}
-
 impl Device {
-    pub fn state(&self) -> Result<String, DeviceError> {
+    pub fn state(&self) -> Result<String> {
         todo!()
     }
 }
