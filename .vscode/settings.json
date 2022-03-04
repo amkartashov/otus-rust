@@ -4,5 +4,6 @@
         "hw2/smarthome/Cargo.toml",
         "hw3/smarthome/Cargo.toml",
         "hw4/smarthome/Cargo.toml",
+        "hw5/smarthome/Cargo.toml",
     ],
 }
