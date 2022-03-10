@@ -197,8 +197,14 @@ fn smartsocket_functions() {
 
     if let Device::SmartSocket(mut s) = d {
         s.switch(true).ok(); // shouldn't panic
+        let (is_on, power_before) = s.state().unwrap();
+        assert!(is_on, "is_on should be true after switch(true)");
+        std::thread::sleep(std::time::Duration::from_secs(1));
         s.switch(false).ok(); // shouldn't panic
-        s.state().ok(); // shouldn't panic
+        let (is_on, power_after) = s.state().unwrap();
+        assert!(!is_on, "is_on should be false after switch(false)");
+        // smartsocket mock increases power by 1 every second, so
+        assert!(power_after - power_before >= 1, "power usage should increase")
     } else {
         unreachable!("d must be Device::SmartSocket")
     };
