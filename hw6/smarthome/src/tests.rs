@@ -1,5 +1,16 @@
 use crate::{Device, Home, Result, Room, SmartSocket, Thermometr};
 
+fn connect_to_smartsocket_mock() -> Device {
+    let smartsocket_mock_addr = std::env::var_os("SMARTSOCKET_ADDR")
+        .and_then(|os_string| os_string.into_string().ok())
+        .and_then(|string| string.parse().ok())
+        .unwrap_or_else(|| "127.0.0.1:55331".to_string());
+
+    SmartSocket::connect(smartsocket_mock_addr)
+        .expect("run smartsocket mock server from eamples")
+        .into()
+}
+
 #[test]
 // test for Дом имеет название и содержит несколько помещений
 // here we test that pub field `name` is correctly set with `Home::new()`
@@ -79,7 +90,7 @@ fn room_device_non_unique_name_isnt_allowed() {
 
     // next add_device call with the same name should return err
     assert!(room
-        .add_device("device1".into(), "".into(), SmartSocket::new().into())
+        .add_device("device1".into(), "".into(), connect_to_smartsocket_mock())
         .is_err());
 }
 
@@ -106,7 +117,7 @@ fn room_has_devices() -> Result<()> {
 
     // test we can add devices
     room.add_device("thermo".into(), "".into(), Thermometr::new().into())?;
-    room.add_device("socket".into(), "".into(), SmartSocket::new().into())?;
+    room.add_device("socket".into(), "".into(), connect_to_smartsocket_mock())?;
 
     // test that we have devices we added
     let mut device_names: Vec<_> = room.device_names().collect();
@@ -155,7 +166,7 @@ fn create_thermometr() -> Result<()> {
 //test for Типы устройств: термометр, умная розетка.
 //here we test we can create device with type smartsocket
 fn create_smartsocket() -> Result<()> {
-    match SmartSocket::new().into() {
+    match connect_to_smartsocket_mock() {
         Device::SmartSocket(_) => Ok(()),
         device => Err(format!("Expected smartsocket, got {:?}", device).into()),
     }
@@ -180,14 +191,14 @@ fn thermometr_functions() {
 // test for Умная розетка позволяет включать и выключать себя. Предоставляет информацию о текущем состоянии и потребляемой мощности.
 // here we just test that functions do not panic, cause we don't have requriements
 fn smartsocket_functions() {
-    let d: Device = SmartSocket::new().into();
+    let d: Device = connect_to_smartsocket_mock();
 
     d.state().ok(); // shouldn't panic
 
     if let Device::SmartSocket(mut s) = d {
         s.switch(true).ok(); // shouldn't panic
         s.switch(false).ok(); // shouldn't panic
-        s.power().ok(); // shouldn't panic
+        s.state().ok(); // shouldn't panic
     } else {
         unreachable!("d must be Device::SmartSocket")
     };
@@ -210,7 +221,7 @@ fn home_state_functions() {
 
         home.room(rn)
             .unwrap()
-            .add_device("socket".into(), "".into(), SmartSocket::new().into())
+            .add_device("socket".into(), "".into(), connect_to_smartsocket_mock())
             .ok();
     }
 

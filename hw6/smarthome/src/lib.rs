@@ -17,7 +17,7 @@ mod error;
 mod home;
 mod room;
 
-pub use device::{Device, SmartSocket, Thermometr};
+pub use device::{Device, SmartSocket, SmartsocketMockServer, Thermometr};
 pub use error::{Error, Result};
 pub use home::Home;
 pub use room::Room;

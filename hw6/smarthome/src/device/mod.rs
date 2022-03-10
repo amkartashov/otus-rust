@@ -2,6 +2,7 @@ mod smartsocket;
 mod thermometr;
 
 use crate::Result;
+pub use smartsocket::mock::server::Server as SmartsocketMockServer;
 pub use smartsocket::SmartSocket;
 pub use thermometr::Thermometr;
 

@@ -5,6 +5,8 @@ use thiserror::Error as thiserrorError;
 pub enum Error {
     #[error("`{0}`")]
     Error(String),
+    #[error("Device io error: {0}")]
+    DeviceIOError(#[from] std::io::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
