@@ -193,7 +193,10 @@ fn thermometr_functions() {
 
     if let Device::Thermometr(t) = d {
         println!("{:?}", t.temperature());
-        assert!(t.temperature().is_ok(), "run thermometr mock server from examples");
+        assert!(
+            t.temperature().is_ok(),
+            "run thermometr mock server from examples"
+        );
     } else {
         unreachable!("d must be Device::Thermometr")
     };
