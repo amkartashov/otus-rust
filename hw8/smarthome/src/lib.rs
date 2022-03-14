@@ -3,13 +3,12 @@
 //! Usage examples:
 //!
 //! ```
-//! use smarthome::{Home, Room, Thermometr};
+//! use smarthome::{Home, Room, Device, Thermometr};
 //!
 //! let mut home = Home::new("my home".into());
 //! home.add_room("kitchen".into(), Room::default());
 //! home.add_room("bedroom".into(), Room::default());
-//! home.room("kitchen").unwrap()
-//!     .add_device("t1".into(), "thermometr".into(), Thermometr::connect("127.0.0.1:55332").into());
+//!
 //! ```
 
 mod device;

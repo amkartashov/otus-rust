@@ -1,6 +1,9 @@
 use crate::Result;
+
 use num_enum::{IntoPrimitive, TryFromPrimitive};
-use std::io::{Error, ErrorKind, Read, Write};
+
+use tokio::io::{AsyncReadExt, AsyncWriteExt, Error, ErrorKind};
+use tokio::net::TcpStream;
 
 pub(crate) mod client;
 
@@ -15,15 +18,15 @@ pub(crate) enum Command {
 macro_rules! create_recv_send_functions {
     ($t:ty) => {
         paste::paste! {
-            pub(crate) fn [<send_ $t>]<W: Write>(data: $t, mut w: W) -> Result<()> {
+            pub(crate) async fn [<send_ $t>](data: $t, stream: &mut TcpStream) -> Result<()> {
                 let data_bytes = data.to_be_bytes();
-                w.write_all(&data_bytes)?;
+                stream.write_all(&data_bytes).await?;
                 Ok(())
             }
 
-            pub(crate) fn [<recv_ $t>]<R: Read>(mut r: R) -> Result<$t> {
+            pub(crate) async fn [<recv_ $t>](stream: &mut TcpStream) -> Result<$t> {
                 let mut buf = [0; std::mem::size_of::<$t>()];
-                r.read_exact(&mut buf)?;
+                stream.read_exact(&mut buf).await?;
                 Ok($t::from_be_bytes(buf))
             }
         }
@@ -33,20 +36,21 @@ macro_rules! create_recv_send_functions {
 create_recv_send_functions!(u8);
 create_recv_send_functions!(u32);
 
-pub(crate) fn send_command<W: Write>(c: Command, w: W) -> Result<()> {
-    send_u8(c.into(), w)
+pub(crate) async fn send_command(cmd: Command, stream: &mut TcpStream) -> Result<()> {
+    send_u8(cmd.into(), stream).await
 }
 
-pub(crate) fn recv_command<R: Read>(r: R) -> Result<Command> {
-    Command::try_from(recv_u8(r)?).map_err(|e| Error::new(ErrorKind::InvalidData, e).into())
+pub(crate) async fn recv_command(stream: &mut TcpStream) -> Result<Command> {
+    Command::try_from(recv_u8(stream).await?)
+        .map_err(|e| Error::new(ErrorKind::InvalidData, e).into())
 }
 
-pub(crate) fn send_bool<W: Write>(b: bool, mut w: W) -> Result<()> {
-    send_u8(b as u8, &mut w)
+pub(crate) async fn send_bool(b: bool, stream: &mut TcpStream) -> Result<()> {
+    send_u8(b as u8, stream).await
 }
 
-pub(crate) fn recv_bool<R: Read>(mut r: R) -> Result<bool> {
-    let data = recv_u8(&mut r)?;
+pub(crate) async fn recv_bool(stream: &mut TcpStream) -> Result<bool> {
+    let data = recv_u8(stream).await?;
     let (t, f) = (true as u8, false as u8);
     match data {
         x if x == t => Ok(true),

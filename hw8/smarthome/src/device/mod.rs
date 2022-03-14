@@ -14,11 +14,12 @@ pub enum Device {
 }
 
 impl Device {
-    pub fn state(&self) -> Result<String> {
+    pub async fn state(&self) -> Result<String> {
         match &self {
-            Device::Thermometr(t) => t.temperature().map(|t| format!("Temperature: {}", t)),
+            Device::Thermometr(t) => t.temperature().await.map(|t| format!("Temperature: {}", t)),
             Device::SmartSocket(s) => s
                 .state()
+                .await
                 .map(|(is_on, power)| format!("Enabled: {}, Power: {}", is_on, power)),
         }
     }

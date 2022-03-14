@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::ops::DerefMut;
 
+use ::futures::stream::{FuturesUnordered, StreamExt};
+
 use crate::device::Device;
 use crate::Result;
 
@@ -62,16 +64,21 @@ impl Room {
     }
 
     /// Collects state of all devices
-    pub fn state(&self) -> String {
+    pub async fn state(&self) -> String {
         self.devices
             .iter()
-            .map(|(name, (_descr, device))| {
+            .map(|(name, (_descr, device))| async move {
                 format!(
                     "{}: {}",
                     name,
-                    device.state().unwrap_or_else(|e| format!("error: {}", e))
+                    device
+                        .state()
+                        .await
+                        .unwrap_or_else(|e| format!("error: {}", e))
                 )
             })
-            .fold(String::new(), |acc, s| acc + &s + "\n")
+            .collect::<FuturesUnordered<_>>()
+            .fold(String::new(), |acc, s| async move { acc + &s + "\n" })
+            .await
     }
 }

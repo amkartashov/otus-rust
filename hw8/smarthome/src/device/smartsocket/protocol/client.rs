@@ -1,29 +1,41 @@
 use super::{recv_bool, recv_u32, send_command, Command::*};
 use crate::Result;
-use std::net::{TcpStream, ToSocketAddrs};
+
+use std::ops::DerefMut;
+use std::sync::Mutex;
+use tokio::net::{TcpStream, ToSocketAddrs};
 
 #[derive(Debug)]
 pub struct Client {
-    stream: TcpStream,
+    // stream should be protected with mutex
+    // to prevent interwining of send/recv
+    stream: Mutex<TcpStream>,
 }
 
 impl Client {
     /// Try to connect to specified address and perform handshake.
-    pub fn connect<Addrs: ToSocketAddrs>(addrs: Addrs) -> Result<Self> {
-        let stream = TcpStream::connect(addrs)?;
-        Ok(Self { stream })
+    pub async fn connect<Addrs: ToSocketAddrs>(addrs: Addrs) -> Result<Self> {
+        let stream = TcpStream::connect(addrs).await?;
+        Ok(Self {
+            stream: Mutex::new(stream),
+        })
     }
 
-    pub fn switch(&mut self, on: bool) -> Result<()> {
+    pub async fn switch(&mut self, on: bool) -> Result<()> {
+        let mut stream = self.stream.lock().unwrap();
         match on {
-            true => send_command(SwitchOn, &self.stream),
-            false => send_command(SwitchOff, &self.stream),
+            true => send_command(SwitchOn, stream.deref_mut()).await,
+            false => send_command(SwitchOff, stream.deref_mut()).await,
         }
     }
 
     /// Returns pair (on: bool, power: u32)
-    pub fn state(&self) -> Result<(bool, u32)> {
-        send_command(GetState, &self.stream)?;
-        Ok((recv_bool(&self.stream)?, recv_u32(&self.stream)?))
+    pub async fn state(&self) -> Result<(bool, u32)> {
+        let mut stream = self.stream.lock().unwrap();
+        send_command(GetState, stream.deref_mut()).await?;
+        Ok((
+            recv_bool(stream.deref_mut()).await?,
+            recv_u32(stream.deref_mut()).await?,
+        ))
     }
 }

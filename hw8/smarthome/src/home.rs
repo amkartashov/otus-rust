@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::ops::DerefMut;
 
+use ::futures::stream::{FuturesUnordered, StreamExt};
+
 use crate::room::Room;
 use crate::Result;
 
@@ -57,10 +59,12 @@ impl Home {
     }
 
     /// Collects state of all rooms
-    pub fn state(&self) -> String {
+    pub async fn state(&self) -> String {
         self.rooms
             .iter()
-            .map(|(name, room)| format!("== {} ==\n{}\n", name, room.state()))
-            .fold(String::new(), |acc, s| acc + &s)
+            .map(|(name, room)| async move { format!("== {} ==\n{}\n", name, room.state().await) })
+            .collect::<FuturesUnordered<_>>()
+            .fold(String::new(), |acc, s| async move { acc + &s })
+            .await
     }
 }

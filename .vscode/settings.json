@@ -7,5 +7,6 @@
         "hw5/smarthome/Cargo.toml",
         "hw6/smarthome/Cargo.toml",
         "hw7/smarthome/Cargo.toml",
+        "hw8/smarthome/Cargo.toml",
     ],
 }

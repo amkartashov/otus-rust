@@ -1,23 +1,27 @@
 use crate::{Device, Home, Result, Room, SmartSocket, Thermometr};
 
-fn connect_to_smartsocket_mock() -> Device {
+async fn connect_to_smartsocket_mock() -> Device {
     let smartsocket_mock_addr = std::env::var_os("SMARTSOCKET_ADDR")
         .and_then(|os_string| os_string.into_string().ok())
         .and_then(|string| string.parse().ok())
         .unwrap_or_else(|| "127.0.0.1:55331".to_string());
 
     SmartSocket::connect(smartsocket_mock_addr)
+        .await
         .expect("run smartsocket mock server from examples")
         .into()
 }
 
-fn connect_to_thermometr_mock() -> Device {
+async fn connect_to_thermometr_mock() -> Device {
     let thermometr_mock_addr = std::env::var_os("TERMOMETR_ADDR")
         .and_then(|os_string| os_string.into_string().ok())
         .and_then(|string| string.parse().ok())
         .unwrap_or_else(|| "127.0.0.1:55332".to_string());
 
-    Thermometr::connect(thermometr_mock_addr).into()
+    Thermometr::connect(thermometr_mock_addr)
+        .await
+        .expect("run thermometr mock server from examples")
+        .into()
 }
 
 #[test]
@@ -88,45 +92,69 @@ fn home_room_non_unique_name_isnt_allowed() {
     assert!(home.add_room("room1".into(), Room::default()).is_err());
 }
 
-#[test]
+#[tokio::test]
 // test for Устройство имеет уникальное в рамках помещения название, тип и описание.
 // here we test that room does not allow non-unique device names
-fn room_device_non_unique_name_isnt_allowed() {
+async fn room_device_non_unique_name_isnt_allowed() {
     let mut room = Room::default();
 
-    room.add_device("device1".into(), "".into(), connect_to_thermometr_mock())
-        .ok(); // ok() to ignore result
+    room.add_device(
+        "device1".into(),
+        "".into(),
+        connect_to_thermometr_mock().await,
+    )
+    .ok(); // ok() to ignore result
 
     // next add_device call with the same name should return err
     assert!(room
-        .add_device("device1".into(), "".into(), connect_to_smartsocket_mock())
+        .add_device(
+            "device1".into(),
+            "".into(),
+            connect_to_smartsocket_mock().await
+        )
         .is_err());
 }
 
-#[test]
+#[tokio::test]
 // test for Устройство имеет уникальное в рамках помещения название, тип и описание.
 // here we test that room does not allow non-unique device types
-fn room_device_non_unique_type_isnt_allowed() {
+async fn room_device_non_unique_type_isnt_allowed() {
     let mut room = Room::default();
 
-    room.add_device("device1".into(), "".into(), connect_to_thermometr_mock())
-        .ok(); // ok() to ignore result
+    room.add_device(
+        "device1".into(),
+        "".into(),
+        connect_to_thermometr_mock().await,
+    )
+    .ok(); // ok() to ignore result
 
     // next add_device call with the same type should return err
     assert!(room
-        .add_device("device2".into(), "".into(), connect_to_thermometr_mock())
+        .add_device(
+            "device2".into(),
+            "".into(),
+            connect_to_thermometr_mock().await
+        )
         .is_err());
 }
 
-#[test]
+#[tokio::test]
 // test for Библтотека позволяет добавлять, получать и удалять любое устройство в доме. Получать список устройств в помещении.
 // here we test we have as expected number of devices in a room
-fn room_has_devices() -> Result<()> {
+async fn room_has_devices() -> Result<()> {
     let mut room = Room::default();
 
     // test we can add devices
-    room.add_device("thermo".into(), "".into(), connect_to_thermometr_mock())?;
-    room.add_device("socket".into(), "".into(), connect_to_smartsocket_mock())?;
+    room.add_device(
+        "thermo".into(),
+        "".into(),
+        connect_to_thermometr_mock().await,
+    )?;
+    room.add_device(
+        "socket".into(),
+        "".into(),
+        connect_to_smartsocket_mock().await,
+    )?;
 
     // test that we have devices we added
     let mut device_names: Vec<_> = room.device_names().collect();
@@ -161,40 +189,37 @@ fn room_has_devices() -> Result<()> {
     Ok(())
 }
 
-#[test]
+#[tokio::test]
 //test for Типы устройств: термометр, умная розетка.
 //here we test we can create device with type thermometr
-fn create_thermometr() -> Result<()> {
-    match connect_to_thermometr_mock() {
+async fn create_thermometr() -> Result<()> {
+    match connect_to_thermometr_mock().await {
         Device::Thermometr(_) => Ok(()),
         device => Err(format!("Expected thermometr, got {:?}", device).into()),
     }
 }
 
-#[test]
+#[tokio::test]
 //test for Типы устройств: термометр, умная розетка.
 //here we test we can create device with type smartsocket
-fn create_smartsocket() -> Result<()> {
-    match connect_to_smartsocket_mock() {
+async fn create_smartsocket() -> Result<()> {
+    match connect_to_smartsocket_mock().await {
         Device::SmartSocket(_) => Ok(()),
         device => Err(format!("Expected smartsocket, got {:?}", device).into()),
     }
 }
 
-#[test]
+#[tokio::test]
 // test for Термометр позволяет узнать температуру
 // here we just test that functions do not panic, cause we don't have requriements
-fn thermometr_functions() {
-    let d: Device = connect_to_thermometr_mock();
-    // wait to make sure state is updated
-    std::thread::sleep(std::time::Duration::from_secs(2));
+async fn termometr_functions() {
+    let d: Device = connect_to_thermometr_mock().await;
 
-    assert!(d.state().is_ok(), "thermometr state is err");
+    assert!(d.state().await.is_ok(), "thermometr state is err");
 
     if let Device::Thermometr(t) = d {
-        println!("{:?}", t.temperature());
         assert!(
-            t.temperature().is_ok(),
+            t.temperature().await.is_ok(),
             "run thermometr mock server from examples"
         );
     } else {
@@ -202,21 +227,21 @@ fn thermometr_functions() {
     };
 }
 
-#[test]
+#[tokio::test]
 // test for Умная розетка позволяет включать и выключать себя. Предоставляет информацию о текущем состоянии и потребляемой мощности.
 // here we just test that functions do not panic, cause we don't have requriements
-fn smartsocket_functions() {
-    let d: Device = connect_to_smartsocket_mock();
+async fn smartsocket_functions() {
+    let d: Device = connect_to_smartsocket_mock().await;
 
-    assert!(d.state().is_ok(), "smartsocket state is err");
+    assert!(d.state().await.is_ok(), "smartsocket state is err");
 
     if let Device::SmartSocket(mut s) = d {
-        s.switch(true).ok(); // shouldn't panic
-        let (is_on, power_before) = s.state().unwrap();
+        s.switch(true).await.ok(); // shouldn't panic
+        let (is_on, power_before) = s.state().await.unwrap();
         assert!(is_on, "is_on should be true after switch(true)");
         std::thread::sleep(std::time::Duration::from_secs(2));
-        s.switch(false).ok(); // shouldn't panic
-        let (is_on, power_after) = s.state().unwrap();
+        s.switch(false).await.ok(); // shouldn't panic
+        let (is_on, power_after) = s.state().await.unwrap();
         assert!(!is_on, "is_on should be false after switch(false)");
         // smartsocket mock increases power by 1 every second, so
         assert!(
@@ -228,10 +253,10 @@ fn smartsocket_functions() {
     };
 }
 
-#[test]
+#[tokio::test]
 // test for Библиотека позволяет строить отчёт о состоянии всех устройств в доме.
 // here we just test that functions do not panic, cause we don't have requriements
-fn home_state_functions() {
+async fn home_state_functions() {
     let mut home = Home::new("my home".into());
     let room_names = ["room1", "room2", "room3"];
 
@@ -240,14 +265,22 @@ fn home_state_functions() {
 
         home.room(rn)
             .unwrap()
-            .add_device("thermo".into(), "".into(), connect_to_thermometr_mock())
+            .add_device(
+                "thermo".into(),
+                "".into(),
+                connect_to_thermometr_mock().await,
+            )
             .ok();
 
         home.room(rn)
             .unwrap()
-            .add_device("socket".into(), "".into(), connect_to_smartsocket_mock())
+            .add_device(
+                "socket".into(),
+                "".into(),
+                connect_to_smartsocket_mock().await,
+            )
             .ok();
     }
 
-    home.state(); // shouldn't panic
+    home.state().await; // shouldn't panic
 }
